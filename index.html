@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Reto Mochila de Emergencia 60s: Caos vs. Preparación. Campaña de evacuación por huracán e inundaciones en Tijuana."
+    />
+    <title>Reto Mochila de Emergencia 60s</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#app">Saltar al contenido</a>
+    <div id="storm-overlay" aria-hidden="true"></div>
+    <canvas id="rain-canvas" aria-hidden="true"></canvas>
+
+    <div id="app">
+      <header id="hud" class="hud" hidden>
+        <div class="hud__brand">
+          <span class="hud__badge">Tijuana · Protección Civil</span>
+          <strong id="hud-round-label">Ronda 1 · Caos</strong>
+        </div>
+
+        <div class="hud__timer" role="timer" aria-live="polite">
+          <span class="hud__timer-label">Tiempo</span>
+          <span id="timer-display" class="hud__timer-value">60</span>
+          <span class="hud__timer-unit">s</span>
+        </div>
+
+        <div class="hud__weight">
+          <div class="hud__weight-meta">
+            <span>Peso de la mochila</span>
+            <span id="weight-label">0.0 / 12 kg</span>
+          </div>
+          <div
+            class="weight-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="12"
+            aria-valuenow="0"
+            id="weight-bar"
+          >
+            <div id="weight-fill" class="weight-bar__fill"></div>
+          </div>
+        </div>
+
+        <div class="hud__count">
+          <span>Objetos</span>
+          <strong id="item-count">0</strong>
+        </div>
+      </header>
+
+      <main>
+        <section id="screen-start" class="screen screen--start" aria-labelledby="start-title">
+          <div class="start-card">
+            <p class="kicker">Campaña de evacuación · Huracán e inundaciones</p>
+            <h1 id="start-title">Reto Mochila de Emergencia 60s</h1>
+            <p class="lede">
+              ¿Estás listo para evacuar tu casa en Tijuana ante un huracán? Tienes
+              60 segundos.
+            </p>
+            <p class="sublede">
+              Primero vivirás el caos de buscar a ciegas. Después, el mismo reto
+              con una estación de salida organizada.
+            </p>
+            <ul class="start-points">
+              <li>Ronda 1: casa desordenada, cajones y estrés de tormenta</li>
+              <li>Ronda 2: kit etiquetado junto a la puerta</li>
+              <li>Capacidad máxima de la mochila: 12 kg</li>
+            </ul>
+            <button id="btn-start" class="btn btn--primary" type="button">
+              Iniciar Reto (Ronda 1)
+            </button>
+          </div>
+        </section>
+
+        <section id="screen-game" class="screen screen--game" hidden>
+          <div class="game-layout">
+            <div class="house-panel">
+              <div id="room-tabs" class="room-tabs" role="tablist" aria-label="Habitaciones"></div>
+              <div id="house-stage" class="house-stage" data-round="1">
+                <div id="rooms-root" class="rooms-root"></div>
+                <div id="exit-station" class="exit-station" hidden></div>
+                <div id="drawer-modal" class="drawer-sheet" hidden>
+                  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+                    <div class="drawer-head">
+                      <h2 id="drawer-title">Cajón</h2>
+                      <button id="btn-close-drawer" class="icon-btn" type="button" aria-label="Cerrar">
+                        ×
+                      </button>
+                    </div>
+                    <p class="drawer-hint">Toca un objeto para guardarlo, o arrástralo a la mochila. El tiempo sigue corriendo.</p>
+                    <div id="drawer-items" class="item-grid"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="backpack-panel">
+              <div
+                id="backpack-drop"
+                class="backpack-drop"
+                tabindex="0"
+                role="region"
+                aria-label="Mochila de emergencia. Suelta objetos aquí."
+              >
+                <div class="backpack-drop__visual">
+                  <img src="assets/backpack.svg" alt="" width="88" height="88" />
+                  <h2>Mochila</h2>
+                  <p id="backpack-hint">Arrastra insumos aquí</p>
+                </div>
+                <ul id="backpack-list" class="backpack-list"></ul>
+              </div>
+              <button id="btn-evacuate" class="btn btn--ghost" type="button">
+                Salir ahora con la mochila
+              </button>
+            </aside>
+          </div>
+        </section>
+
+        <section id="screen-results" class="screen screen--results" hidden>
+          <div class="results-card">
+            <p class="kicker">Comparativa de desempeño</p>
+            <h1>Caos vs. Preparación</h1>
+            <p class="lede" id="results-summary"></p>
+
+            <div class="table-wrap">
+              <table class="compare-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Métrica</th>
+                    <th scope="col">Ronda 1 (Sin Preparación)</th>
+                    <th scope="col">Ronda 2 (Con Preparación)</th>
+                  </tr>
+                </thead>
+                <tbody id="results-tbody"></tbody>
+              </table>
+            </div>
+
+            <section class="edu-module" aria-labelledby="edu-title">
+              <h2 id="edu-title">Necesidades específicas de cada hogar</h2>
+              <p>
+                Un kit universal no basta. Estos objetos dependen de quién vive
+                contigo. Ábrelos para ver por qué importan en Tijuana.
+              </p>
+              <div id="conditional-cards" class="accordion"></div>
+            </section>
+
+            <div class="results-actions">
+              <button id="btn-telemetry" class="btn btn--primary" type="button">
+                Enviar resultado anónimo a datos de prevención
+              </button>
+              <button id="btn-retry" class="btn btn--ghost" type="button">Reintentar</button>
+            </div>
+            <p id="telemetry-status" class="telemetry-status" role="status"></p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="modal-intermission" class="modal" hidden>
+      <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="intermission-title">
+        <h2 id="intermission-title">Tiempo agotado</h2>
+        <p id="intermission-body"></p>
+        <p class="modal__note">
+          Ahora experimenta el reto con tus cosas previamente organizadas en la
+          salida.
+        </p>
+        <button id="btn-round-2" class="btn btn--primary" type="button">
+          Comenzar Ronda 2
+        </button>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" hidden role="status"></div>
+
+    <script src="js/itemsData.js"></script>
+    <script src="js/uiManager.js"></script>
+    <script src="js/gameEngine.js"></script>
+  </body>
+</html>
